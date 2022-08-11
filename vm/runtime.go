@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"strings"
 )
 
 type Call struct {
@@ -142,7 +143,18 @@ func FetchFnNil(from interface{}, name string) reflect.Value {
 	return FetchFn(from, name)
 }
 
-func in(needle interface{}, array interface{}) bool {
+func caseInsensitiveCompare(a, b interface{}) bool {
+	switch x := a.(type) {
+	case string:
+		switch y := b.(type) {
+		case string:
+			return strings.ToLower(x) == strings.ToLower(y)
+		}
+	}
+	return false
+}
+
+func in(needle interface{}, array interface{}, caseInsensitive bool) bool {
 	if array == nil {
 		return false
 	}
@@ -154,6 +166,10 @@ func in(needle interface{}, array interface{}) bool {
 		for i := 0; i < v.Len(); i++ {
 			value := v.Index(i)
 			if value.IsValid() && value.CanInterface() {
+				if caseInsensitive && caseInsensitiveCompare(value.Interface(), needle) {
+					return true
+				}
+
 				if equal(value.Interface(), needle).(bool) {
 					return true
 				}
@@ -165,6 +181,10 @@ func in(needle interface{}, array interface{}) bool {
 		n := reflect.ValueOf(needle)
 		if !n.IsValid() {
 			panic(fmt.Sprintf("cannot use %T as index to %T", needle, array))
+		}
+		if caseInsensitive && n.Kind() == reflect.String {
+			// convert needle to lower case, assume string in Map is optimized to lower case
+			n = reflect.ValueOf(strings.ToLower(needle.(string)))
 		}
 		value := v.MapIndex(n)
 		if value.IsValid() {
@@ -186,7 +206,7 @@ func in(needle interface{}, array interface{}) bool {
 	case reflect.Ptr:
 		value := v.Elem()
 		if value.IsValid() && value.CanInterface() {
-			return in(needle, value.Interface())
+			return in(needle, value.Interface(), caseInsensitive)
 		}
 		return false
 	}

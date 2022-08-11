@@ -20,6 +20,7 @@ const (
 	OpJumpIfFalse
 	OpJumpBackward
 	OpIn
+	OpCaseInsensitiveIn // like OpIn, but for comparing string case insensitively
 	OpLess
 	OpMore
 	OpLessOrEqual

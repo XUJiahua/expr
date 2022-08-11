@@ -163,7 +163,12 @@ func (vm *VM) Run(program *Program, env interface{}) (out interface{}, err error
 		case OpIn:
 			b := vm.pop()
 			a := vm.pop()
-			vm.push(in(a, b))
+			vm.push(in(a, b, false))
+
+		case OpCaseInsensitiveIn:
+			b := vm.pop()
+			a := vm.pop()
+			vm.push(in(a, b, true))
 
 		case OpLess:
 			b := vm.pop()

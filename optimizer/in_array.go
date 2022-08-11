@@ -2,6 +2,7 @@ package optimizer
 
 import (
 	"reflect"
+	"strings"
 
 	. "github.com/antonmedv/expr/ast"
 )
@@ -12,7 +13,9 @@ func (*inArray) Enter(*Node) {}
 func (*inArray) Exit(node *Node) {
 	switch n := (*node).(type) {
 	case *BinaryNode:
-		if n.Operator == "in" || n.Operator == "not in" {
+		if n.Operator == "in" || n.Operator == "not in" ||
+			// also optimized for op case_insensitive_in
+			n.Operator == "case_insensitive_in" || n.Operator == "not case_insensitive_in" {
 			if array, ok := n.Right.(*ArrayNode); ok {
 				if len(array.Nodes) > 0 {
 					t := n.Left.Type()
@@ -49,7 +52,11 @@ func (*inArray) Exit(node *Node) {
 					{
 						value := make(map[string]struct{})
 						for _, a := range array.Nodes {
-							value[a.(*StringNode).Value] = struct{}{}
+							key := a.(*StringNode).Value
+							if n.Operator == "case_insensitive_in" || n.Operator == "not case_insensitive_in" {
+								key = strings.ToLower(key)
+							}
+							value[key] = struct{}{}
 						}
 						Patch(node, &BinaryNode{
 							Operator: n.Operator,

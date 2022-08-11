@@ -118,6 +118,9 @@ func (program *Program) Disassemble() string {
 		case OpIn:
 			code("OpIn")
 
+		case OpCaseInsensitiveIn:
+			code("OpCaseInsensitiveIn")
+
 		case OpLess:
 			code("OpLess")
 

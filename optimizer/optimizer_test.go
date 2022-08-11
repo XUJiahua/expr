@@ -49,6 +49,27 @@ func TestOptimize_in_array(t *testing.T) {
 	assert.Equal(t, ast.Dump(expected), ast.Dump(tree.Node))
 }
 
+func TestOptimize_in_array2(t *testing.T) {
+	config := conf.New(map[string]string{"v": "a"})
+
+	tree, err := parser.Parse(`v case_insensitive_in ["A","B","C"]`)
+	require.NoError(t, err)
+
+	_, err = checker.Check(tree, config)
+	require.NoError(t, err)
+
+	err = optimizer.Optimize(&tree.Node, nil)
+	require.NoError(t, err)
+
+	expected := &ast.BinaryNode{
+		Operator: "case_insensitive_in",
+		Left:     &ast.IdentifierNode{Value: "v"},
+		Right:    &ast.ConstantNode{Value: map[string]struct{}{"a": {}, "b": {}, "c": {}}},
+	}
+
+	assert.Equal(t, ast.Dump(expected), ast.Dump(tree.Node))
+}
+
 func TestOptimize_in_range(t *testing.T) {
 	tree, err := parser.Parse(`age in 18..31`)
 	require.NoError(t, err)

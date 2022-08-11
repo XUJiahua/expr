@@ -125,7 +125,7 @@ loop:
 			switch l.word() {
 			case "not":
 				return not
-			case "in", "or", "and", "matches", "contains", "startsWith", "endsWith":
+			case "in", "or", "and", "matches", "contains", "startsWith", "endsWith", "case_insensitive_in":
 				l.emit(Operator)
 			default:
 				l.emit(Identifier)
@@ -137,12 +137,19 @@ loop:
 }
 
 func not(l *lexer) stateFn {
-	switch l.acceptWord("in") {
-	case true:
+	if l.acceptWord("in") {
 		l.emitValue(Operator, "not in")
-	case false:
+	} else if l.acceptWord("case_insensitive_in") {
+		l.emitValue(Operator, "not case_insensitive_in")
+	} else {
 		l.emitValue(Operator, "not")
 	}
+	//switch l.acceptWord("in") {
+	//case true:
+	//	l.emitValue(Operator, "not in")
+	//case false:
+	//	l.emitValue(Operator, "not")
+	//}
 
 	return root
 }

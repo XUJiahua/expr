@@ -314,6 +314,17 @@ func (c *compiler) BinaryNode(node *ast.BinaryNode) {
 		c.emit(OpIn)
 		c.emit(OpNot)
 
+	case "case_insensitive_in":
+		c.compile(node.Left)
+		c.compile(node.Right)
+		c.emit(OpCaseInsensitiveIn)
+
+	case "not case_insensitive_in":
+		c.compile(node.Left)
+		c.compile(node.Right)
+		c.emit(OpCaseInsensitiveIn)
+		c.emit(OpNot)
+
 	case "<":
 		c.compile(node.Left)
 		c.compile(node.Right)

@@ -109,6 +109,8 @@ Result will be set to `Arthur Dent`.
 
 * `in` (contain)
 * `not in` (does not contain)
+* `case_insensitive_in` (contain and case insensitively)
+* `not case_insensitive_in` (does not contain and case insensitively)
 
 Example:
 

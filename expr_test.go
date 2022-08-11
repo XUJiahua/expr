@@ -1528,3 +1528,44 @@ func (p *lengthPatcher) Exit(node *ast.Node) {
 		}
 	}
 }
+
+func TestCaseInsensitiveIn(t *testing.T) {
+	code := `v case_insensitive_in ["A","B","C"]`
+	code2 := `v not case_insensitive_in ["A","B","C"]`
+
+	helper := func(code string, env map[string]interface{}, expected bool) {
+		options := []expr.Option{
+			expr.Env(env),
+		}
+		program, err := expr.Compile(code, options...)
+		require.NoError(t, err)
+
+		output, err := expr.Run(program, env)
+		require.NoError(t, err)
+
+		require.Equal(t, expected, output.(bool))
+	}
+	helper(code, map[string]interface{}{
+		"v": "a",
+	}, true)
+
+	helper(code, map[string]interface{}{
+		"v": "A",
+	}, true)
+
+	helper(code, map[string]interface{}{
+		"v": "d",
+	}, false)
+
+	helper(code, map[string]interface{}{
+		"v": "D",
+	}, false)
+
+	helper(code2, map[string]interface{}{
+		"v": "a",
+	}, false)
+	helper(code2, map[string]interface{}{
+		"v": "d",
+	}, true)
+
+}

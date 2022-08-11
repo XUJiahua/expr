@@ -199,6 +199,18 @@ func TestParse(t *testing.T) {
 			&ast.BinaryNode{Operator: "in", Left: &ast.IntegerNode{}, Right: &ast.ArrayNode{Nodes: []ast.Node{}}},
 		},
 		{
+			"0 in [1, 2, 3]",
+			&ast.BinaryNode{Operator: "in", Left: &ast.IntegerNode{}, Right: &ast.ArrayNode{Nodes: []ast.Node{&ast.IntegerNode{Value: 1}, &ast.IntegerNode{Value: 2}, &ast.IntegerNode{Value: 3}}}},
+		},
+		{
+			`"0" in ["1", "2", "3"]`,
+			&ast.BinaryNode{Operator: "in", Left: &ast.StringNode{Value: "0"}, Right: &ast.ArrayNode{Nodes: []ast.Node{&ast.StringNode{Value: "1"}, &ast.StringNode{Value: "2"}, &ast.StringNode{Value: "3"}}}},
+		},
+		{
+			`"0" case_insensitive_in ["1", "2", "3"]`,
+			&ast.BinaryNode{Operator: "case_insensitive_in", Left: &ast.StringNode{Value: "0"}, Right: &ast.ArrayNode{Nodes: []ast.Node{&ast.StringNode{Value: "1"}, &ast.StringNode{Value: "2"}, &ast.StringNode{Value: "3"}}}},
+		},
+		{
 			"not in_var",
 			&ast.UnaryNode{Operator: "not", Node: &ast.IdentifierNode{Value: "in_var"}},
 		},
