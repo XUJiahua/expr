@@ -298,7 +298,7 @@ func (v *visitor) PropertyNode(node *ast.PropertyNode) reflect.Type {
 		}
 	}
 
-	if mapTypes != nil {
+	if mapTypes != nil && len(mapTypes) > 0 {
 		if t, ok := fieldTypeForMap(mapTypes, node.Property); ok {
 			return t
 		}

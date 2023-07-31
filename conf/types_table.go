@@ -49,7 +49,7 @@ func CreateTypesTable(i interface{}) TypesTable {
 			if key.Kind() == reflect.String && value.IsValid() && value.CanInterface() {
 				valueType := reflect.TypeOf(value.Interface())
 				var subTypes TypesTable = nil
-				if valueType.Kind() == reflect.Map {
+				if valueType != nil && valueType.Kind() == reflect.Map {
 					// usecase: fieldInLevel1.fieldInLevel2, support fieldInLevel2 type
 					subTypes = CreateTypesTable(value.Interface())
 				}
