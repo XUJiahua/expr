@@ -1,6 +1,7 @@
 package checker
 
 import (
+	"github.com/antonmedv/expr/conf"
 	"reflect"
 
 	"github.com/antonmedv/expr/ast"
@@ -226,6 +227,14 @@ func fieldType(ntype reflect.Type, name string) (reflect.Type, bool) {
 		case reflect.Map:
 			return ntype.Elem(), true
 		}
+	}
+
+	return nil, false
+}
+
+func fieldTypeForMap(typeTable conf.TypesTable, name string) (reflect.Type, bool) {
+	if typeTag, ok := typeTable[name]; ok {
+		return typeTag.Type, true
 	}
 
 	return nil, false

@@ -3,9 +3,10 @@ package conf
 import "reflect"
 
 type Tag struct {
-	Type      reflect.Type
-	Method    bool
-	Ambiguous bool
+	Type          reflect.Type
+	MapTypesTable TypesTable // exists only if Type.Kind() == reflect.Map
+	Method        bool
+	Ambiguous     bool
 }
 
 type TypesTable map[string]Tag
@@ -46,7 +47,13 @@ func CreateTypesTable(i interface{}) TypesTable {
 		for _, key := range v.MapKeys() {
 			value := v.MapIndex(key)
 			if key.Kind() == reflect.String && value.IsValid() && value.CanInterface() {
-				types[key.String()] = Tag{Type: reflect.TypeOf(value.Interface())}
+				valueType := reflect.TypeOf(value.Interface())
+				var subTypes TypesTable = nil
+				if valueType.Kind() == reflect.Map {
+					// usecase: fieldInLevel1.fieldInLevel2, support fieldInLevel2 type
+					subTypes = CreateTypesTable(value.Interface())
+				}
+				types[key.String()] = Tag{Type: valueType, MapTypesTable: subTypes}
 			}
 		}
 

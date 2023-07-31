@@ -287,8 +287,25 @@ func (v *visitor) MatchesNode(node *ast.MatchesNode) reflect.Type {
 
 func (v *visitor) PropertyNode(node *ast.PropertyNode) reflect.Type {
 	t := v.visit(node.Node)
-	if t, ok := fieldType(t, node.Property); ok {
-		return t
+
+	var mapTypes conf.TypesTable = nil
+	if t != nil && t.Kind() == reflect.Map {
+		// req.prop1 req is IdentifierNode, prop1 is PropertyNode
+		if n, ok := node.Node.(*ast.IdentifierNode); ok {
+			if typeTag, ok := v.types[n.Value]; ok {
+				mapTypes = typeTag.MapTypesTable
+			}
+		}
+	}
+
+	if mapTypes != nil {
+		if t, ok := fieldTypeForMap(mapTypes, node.Property); ok {
+			return t
+		}
+	} else {
+		if t, ok := fieldType(t, node.Property); ok {
+			return t
+		}
 	}
 	if !node.NilSafe {
 		return v.error(node, "type %v has no field %v", t, node.Property)
